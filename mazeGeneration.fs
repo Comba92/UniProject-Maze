@@ -7,6 +7,7 @@ type Maze(H,W) =
 
     let maze = Array2D.init H W (fun _ _ -> new Cell ())
     let oddWidth = if W % 2 = 1 then true else false    // Flag per la stampa corretta
+    let oddHeight = if H % 2 = 1 then true else false 
 
     let isLegal (h,w) =     // Controlla se una coordinata esce dall'array
         if h >= H || h < 0 || w >= W || w < 0 then false
@@ -70,8 +71,8 @@ type Maze(H,W) =
     member this.printer() =
         let drawBorders() = 
             for _ in 0..(W-1) do
-                printf "**"
-            if oddWidth = true then printf "***\n"
+                printf "* *"
+            if oddWidth = true then printf "* *\n"
             else printf "*\n"
 
         drawBorders() // Bordo alto
@@ -84,7 +85,7 @@ type Maze(H,W) =
             if oddWidth = true then printf "*\n"    // Bordo destro solo se Width è dispari
             else printf "\n"
 
-        drawBorders() // Bordo basso
+        if oddHeight then drawBorders() // Bordo basso
 
 
 [<EntryPoint>]
