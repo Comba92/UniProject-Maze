@@ -4,8 +4,9 @@ type Cell() =
     member val isWall = true with get, set
 
 type Maze(H,W) =
+
     let maze = Array2D.init H W (fun _ _ -> new Cell ())
-    let oddWidth = if W % 2 = 1 then true else false
+    let oddWidth = if W % 2 = 1 then true else false    // Flag per la stampa corretta
 
     let isLegal (h,w) =     // Controlla se una coordinata esce dall'array
         if h >= H || h < 0 || w >= W || w < 0 then false
@@ -16,6 +17,7 @@ type Maze(H,W) =
         let rnd = new Random()
         let index = rnd.Next (List.length ls)
         List.item index ls
+
 
 // Ritorna le coordinate della prossima cella scelta a caso; deve ritornare due coordinate dato che la prossima cella è 
 // più avanti di due blocchi, e abbiamo bisogno anche della coordinata della cella tra quella d'origine e quella di 
@@ -49,6 +51,7 @@ type Maze(H,W) =
             maze.[nextH,nextW].isWall <- false // Aggiorna prossima cella
             maze.[midH, midW].isWall <- false  // Aggiorna cella in mezzo
             (nextH, nextW)
+
 
 // Genera il percorso ricorsivamente. Stack è una lista che salva tutte le posizioni visitate in modo da poter tornare 
 // indietro in caso non ci siano più celle vicine visitabili
