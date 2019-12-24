@@ -71,7 +71,7 @@ type Maze(H,W) =
     member this.printer() =
         let drawBorders() = 
             for _ in 0..(W-1) do
-                printf "* *"
+                printf "* "
             if oddWidth = true then printf "* *\n"
             else printf "*\n"
 
