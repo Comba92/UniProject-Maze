@@ -43,12 +43,11 @@ type Maze(H,W) =
 
 // Aggiorna le celle adeguatamente e ritorna la posizione della cella in cui ci siamo spostati.
     let update (h,w) =  
-        maze.[h,w].isWall <- false
+        maze.[h,w].isWall <- false             // Aggiorna la cella corrente
         let nextCell = getNextIndex (h,w)
         if nextCell = ((-1,-1), (-1,-1)) then (-1,-1)
         else 
             let (nextH,nextW), (midH,midW) = nextCell
-            maze.[nextH,nextW].isWall <- false // Aggiorna prossima cella
             maze.[midH, midW].isWall <- false  // Aggiorna cella in mezzo
             (nextH, nextW)
 
