@@ -1,25 +1,17 @@
-﻿(*
-* LabProg2019 - Progetto di Programmazione a.a. 2019-20
-* Maze.fs: maze
-* (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
-*)
-
 module LabProg2019.Maze
 
-
-open External
 open Gfx
 open System
 open Engine
-open System.IO // Name spaces can be opened just as modules
       
 [< NoEquality; NoComparison >]
 type state = {
     player : sprite
 }
 
-let W = 60
-let H = 30
+// Per i bordi corretti, le grandezze devono essere DISPARI
+let W = 31
+let H = 15
 
 type Cell() = 
     member val isWall = true with get, set
@@ -77,35 +69,46 @@ type Maze(W, H) =
 
 let main () =       
     let engine = new engine (W, H)
-    let maze = (Maze (W, H)).get
+    let maze = (Maze ((W-1), (H-1))).get    // Mi salvo la struttura del labirinto
+    engine.show_fps <- false
 
 
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         // move player
-        let dx, dy =
+        let dx, dy, prevx, prevy =
             match key.KeyChar with 
-            | 'w' -> 0., -1.
-            | 's' -> 0., 1.
-            | 'a' -> -1., 0.
-            | 'd' -> 1., 0.
-            | _   -> 0., 0.
-        // TODO: check bounds
-        st.player.move_by (dx, dy)     
+            | 'w' -> 0., -1., 0., 1.
+            | 's' -> 0., 1., 0., -1.
+            | 'a' -> -1., 0., 1., 0.
+            | 'd' -> 1., 0., -1., 0.
+            | _   -> 0., 0., 0., 0.
+
+        // Muoviamo il player; se è legale tieni la posizione, altrimenti torna indietro.
+        st.player.move_by (dx, dy)
+        let px, py = (int(st.player.x))-1, (int (st.player.y))-1    // L'indicizzazione dell'oggetto maze è uguale a quella dell'engine-1
+
+        // Controllo collisione coi bordi
+        if px+1 = 0 || px+1 = W || py+1 = 0 || py+1 = H then st.player.move_by (prevx, prevy)
+        // Controllo collisione coi muri
+        elif maze.[px, py].isWall = true then st.player.move_by (prevx, prevy)
         st, key.KeyChar = 'q'
+
 
     let wall = image.rectangle (1,1, pixel.filled Color.Gray)
 
+    // Stampa delle mura
     let mazeWalls = [|
-        for i in 0..(W-1) do
-            for j in 0..(H-1) do 
+        for i in 0..(W-2) do
+            for j in 0..(H-2) do 
                 if maze.[i,j].isWall = true then engine.create_and_register_sprite (wall, i+1, j+1, 1)
     |]
 
-    // create simple backgroud and player
-    //let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
-    let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Red), 0, 0, 2)
+    // TODO Stampa dell'exit
 
-    //screen.draw_text ("Testing", 0, (H-1), Color.Cyan)
+    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
+
+    // create simple backgroud and player
+    let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Red), 1, 1, 2)
 
     // initialize state
     let st0 = { 
