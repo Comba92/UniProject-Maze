@@ -1,3 +1,9 @@
+
+* LabProg2019 - Progetto di Programmazione a.a. 2019-20
+* Maze.fs: maze
+* (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
+*)
+
 module LabProg2019.Maze
 
 open Gfx
@@ -10,14 +16,16 @@ type state = {
 }
 
 // Per i bordi corretti, le grandezze devono essere DISPARI
-let W = 31
-let H = 15
+let W = 21
+let H = 21
 
 type Cell() = 
     member val isWall = true with get, set
 
 type Maze(W, H) =
     let maze = Array2D.init W H (fun _ _ -> new Cell ())
+    let startingCell = (0,0)
+    let exitCell = (W-2, H-2)  // -2 perché W e H sono pari, exitCell deve essere pari...
 
     let isLegal (w,h) =   
         if h >= H || h < 0 || w >= W || w < 0 then false
@@ -45,7 +53,9 @@ type Maze(W, H) =
         else getRandom newNeighbors                     
 
     let update (w,h) =  
-        maze.[w,h].isWall <- false            
+        maze.[w,h].isWall <- false
+        if (w,h) = exitCell then (-1,-1) // funziona solo con exitCell pari....
+        else 
         let nextCell = getNextIndex (w,h)
         if nextCell = ((-1,-1), (-1,-1)) then (-1,-1)
         else 
@@ -62,14 +72,20 @@ type Maze(W, H) =
                     generate (List.tail stack)
                 else generate (nextCell::stack)
 
-        in generate [(0,0)]
+        in generate [startingCell]
         maze
 
     member this.get = this.make_path()
+    member this.exit = exitCell
+
+let win() = exit(0)
 
 let main () =       
     let engine = new engine (W, H)
-    let maze = (Maze ((W-1), (H-1))).get    // Mi salvo la struttura del labirinto
+    let mazeObj = new Maze ((W-1), (H-1)) 
+    let maze = mazeObj.get // Mi salvo la struttura del labirinto
+    let exitx, exity = let a, b = mazeObj.exit
+                       (a+1, b+1)
     engine.show_fps <- false
 
 
@@ -91,6 +107,8 @@ let main () =
         if px+1 = 0 || px+1 = W || py+1 = 0 || py+1 = H then st.player.move_by (prevx, prevy)
         // Controllo collisione coi muri
         elif maze.[px, py].isWall = true then st.player.move_by (prevx, prevy)
+
+        if (int(st.player.x), int(st.player.y)) = (exitx, exity) then win()
         st, key.KeyChar = 'q'
 
 
@@ -103,12 +121,11 @@ let main () =
                 if maze.[i,j].isWall = true then engine.create_and_register_sprite (wall, i+1, j+1, 1)
     |]
 
-    // TODO Stampa dell'exit
-
     let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
 
     // create simple backgroud and player
     let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Red), 1, 1, 2)
+    let exit = engine.create_and_register_sprite (image.rectangle (1,1, pixel.filled Color.Yellow), exitx, exity, 3)
 
     // initialize state
     let st0 = { 
