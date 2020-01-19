@@ -80,15 +80,16 @@ type Maze(W, H) =
 
 let win() = exit(0)
 
-let main () =       
+let userGame () =       
     let engine = new engine (W, H)
     let mazeObj = new Maze ((W-1), (H-1)) 
     let maze = mazeObj.get // Mi salvo la struttura del labirinto
-    let exitx, exity = let a, b = mazeObj.exit
+
+    let exitx, exity = let a, b = mazeObj.exit  // Prendo coordinate exit, aggiungo +1 per visualizzazione
                        (a+1, b+1)
+    
     engine.show_fps <- false
-
-
+    
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         // move player
         let dx, dy, prevx, prevy =
@@ -107,7 +108,7 @@ let main () =
         if px+1 = 0 || px+1 = W || py+1 = 0 || py+1 = H then st.player.move_by (prevx, prevy)
         // Controllo collisione coi muri
         elif maze.[px, py].isWall = true then st.player.move_by (prevx, prevy)
-
+        // Controllo collisione exit
         if (int(st.player.x), int(st.player.y)) = (exitx, exity) then win()
         st, key.KeyChar = 'q'
 
@@ -132,4 +133,38 @@ let main () =
         player = player
         }
     // start engine
+    engine.loop_on_key my_update st0
+
+
+
+let main () =
+    let mainW, mainH = 60, 20
+    let engine = new engine (mainW, mainH)
+    engine.show_fps <- false
+
+    let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
+        let dx, dy =
+            match key.KeyChar with
+            //| 'w' -> 0., -20.
+            //| 's' -> 0., 20.
+            | 'a' -> -20., 0.
+            | 'd' -> 20., 0.
+            | ' ' -> 1., 1.
+            | _   -> 0., 0.
+        if (dx, dy) = (1.,1.) then userGame()
+        st.player.move_by (dx, dy)
+        st, key.KeyChar = 'q'
+
+    let screen = engine.create_and_register_sprite (image.rectangle (mainW, mainH, pixel.filled Color.Black), 0, 0, 0)
+    let box1 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 10, 5, 1)
+    let box2 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 30, 5, 1)
+    let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), 9, 4, 2)
+
+    screen.draw_text ("Testing... Press Space for starting", 0, 0, Color.Blue)
+    box1.draw_text ("Find the Exit", 1, 3, Color.White)
+    box2.draw_text (" Auto Finder!", 1, 3, Color.White)
+
+    let st0 = {
+        player = selection
+        }
     engine.loop_on_key my_update st0
