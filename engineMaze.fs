@@ -1,4 +1,4 @@
-
+(*
 * LabProg2019 - Progetto di Programmazione a.a. 2019-20
 * Maze.fs: maze
 * (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
@@ -21,6 +21,8 @@ let H = 21
 
 type Cell() = 
     member val isWall = true with get, set
+    member val isPath = false with get, set
+    member val isVisited = false with get, set
 
 type Maze(W, H) =
     let maze = Array2D.init W H (fun _ _ -> new Cell ())
@@ -35,22 +37,39 @@ type Maze(W, H) =
         let index = rnd_int 0 ((List.length ls)-1)
         List.item index ls
 
-    let getNextIndex (w,h) = 
-        let rec checkLegals ls = 
-            match ls with 
-            | [] -> []
-            | ((x,y), midPosition)::tail -> 
-                if isLegal (x,y) then 
-                    if maze.[x,y].isWall = false then checkLegals tail
+    let rec checkLegals ls = 
+        match ls with 
+        | [] -> []
+        | ((x,y), midPosition)::tail -> 
+            if isLegal (x,y) then 
+                    if maze.[x,y].isWall = false then checkLegals tail 
                     else ((x,y), midPosition)::(checkLegals tail)
-                else checkLegals tail
+            else checkLegals tail
 
-        let neighbors = [((w-2,h), (w-1,h)); ((w+2,h), (w+1,h));
-                         ((w,h-2), (w,h-1)); ((w,h+2), (w,h+1))]
+    let rec checkLegals2 ls = 
+        match ls with
+        | [] -> []
+        | (x,y):: t -> 
+            if isLegal (x,y) then 
+                if maze.[x,y].isWall then checkLegals2 t
+                elif maze.[x,y].isVisited then checkLegals2 t
+                else (x,y)::(checkLegals2 t)
+            else checkLegals2 t
 
-        let newNeighbors = checkLegals neighbors         
-        if newNeighbors = [] then ((-1,-1), (-1,-1))    
-        else getRandom newNeighbors                     
+    let getAllNeighbors (h,w) = 
+        [((h-2,w), (h-1,w)); ((h+2,w), (h+1,w));
+        ((h,w-2), (h,w-1)); ((h,w+2), (h,w+1))]
+
+    let getLegalNeighbors (h,w) =
+        checkLegals (getAllNeighbors (h,w))
+
+    let getLegalNeighbors2 (h,w) =
+        checkLegals2 (List.map (fun x -> snd x ) (getAllNeighbors (h,w)))
+
+    let getNextIndex (h,w) =  
+        let legalNeighbors = getLegalNeighbors (h,w)
+        if legalNeighbors = [] then ((-1,-1), (-1,-1))    
+        else getRandom legalNeighbors                         
 
     let update (w,h) =  
         maze.[w,h].isWall <- false
@@ -72,10 +91,33 @@ type Maze(W, H) =
                     generate (List.tail stack)
                 else generate (nextCell::stack)
 
-        in generate [startingCell]
-        maze
+        generate [startingCell]
 
-    member this.get = this.make_path()
+    member this.find_path () = 
+        let rec iterate ls p stack =
+            match ls with 
+            | [] -> ()
+            | h :: t -> let x,y = h 
+                        maze.[x,y].isPath <- true
+                        maze.[x,y].isVisited <- true
+                        p ((x,y)::stack)
+        
+        let rec find stack = 
+            if (List.head stack) = exitCell then ()
+            else 
+                let x,y = List.head stack
+                
+                
+                let neighbors = (getLegalNeighbors2 (List.head stack))
+                if neighbors = [] then 
+                    maze.[x,y].isPath <- false
+                    find (List.tail stack)
+                else 
+                    iterate neighbors find stack    // I FOR PUZZANO COSI HO FATTO STA PORCHERIA RICORSIVA!
+        in find [startingCell]
+
+
+    member this.get = maze
     member this.exit = exitCell
 
 let win() = exit(0)
@@ -83,12 +125,14 @@ let win() = exit(0)
 let userGame () =       
     let engine = new engine (W, H)
     let mazeObj = new Maze ((W-1), (H-1)) 
+    mazeObj.make_path()
     let maze = mazeObj.get // Mi salvo la struttura del labirinto
 
     let exitx, exity = let a, b = mazeObj.exit  // Prendo coordinate exit, aggiungo +1 per visualizzazione
                        (a+1, b+1)
     
     engine.show_fps <- false
+
     
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         // move player
@@ -132,9 +176,54 @@ let userGame () =
     let st0 = { 
         player = player
         }
+
     // start engine
     engine.loop_on_key my_update st0
 
+let cpuGame () = 
+    let engine = new engine (W, H)
+    let mazeObj = new Maze ((W-1), (H-1)) 
+    mazeObj.make_path()
+    mazeObj.find_path()
+    let maze = mazeObj.get // Mi salvo la struttura del labirinto
+
+    let exitx, exity = let a, b = mazeObj.exit  // Prendo coordinate exit, aggiungo +1 per visualizzazione
+                       (a+1, b+1)
+    
+    engine.show_fps <- false
+    
+    let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
+        st, key.KeyChar = 'q'
+
+
+    let wall = image.rectangle (1,1, pixel.filled Color.Gray)
+    let path = image.rectangle (1,1, pixel.filled Color.Red)
+
+    // Stampa delle mura
+    let mazeWalls = [|
+        for i in 0..(W-2) do
+            for j in 0..(H-2) do 
+                if maze.[i,j].isWall then engine.create_and_register_sprite (wall, i+1, j+1, 1)
+    |]
+
+    let mazePath = [|
+        for i in 0..(W-2) do 
+            for j in 0..(H-2) do
+                if maze.[i,j].isPath then engine.create_and_register_sprite (path, i+1, j+1, 1)
+    |]
+
+    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
+
+    // create simple backgroud and player
+    let start = engine.create_and_register_sprite (path, 1, 1, 1)
+    let exit = engine.create_and_register_sprite (image.rectangle (1,1, pixel.filled Color.Yellow), exitx, exity, 3)
+
+    // initialize state
+    let st0 = { 
+        player = start
+        }
+    // start engine
+    engine.loop_on_key my_update st0
 
 
 let main () =
@@ -150,9 +239,12 @@ let main () =
             | 'a' -> -20., 0.
             | 'd' -> 20., 0.
             | ' ' -> 1., 1.
+            | 'e' -> 2.,2.
             | _   -> 0., 0.
         if (dx, dy) = (1.,1.) then userGame()
-        st.player.move_by (dx, dy)
+        elif (dx, dy) = (2.,2.) then cpuGame()
+        else 
+            st.player.move_by (dx, dy)
         st, key.KeyChar = 'q'
 
     let screen = engine.create_and_register_sprite (image.rectangle (mainW, mainH, pixel.filled Color.Black), 0, 0, 0)
@@ -160,7 +252,7 @@ let main () =
     let box2 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 30, 5, 1)
     let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), 9, 4, 2)
 
-    screen.draw_text ("Testing... Press Space for starting", 0, 0, Color.Blue)
+    screen.draw_text ("Testing... Press Space for userGame, E for CPUGame", 0, 0, Color.Blue)
     box1.draw_text ("Find the Exit", 1, 3, Color.White)
     box2.draw_text (" Auto Finder!", 1, 3, Color.White)
 
