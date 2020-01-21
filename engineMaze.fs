@@ -1,4 +1,3 @@
-
 (*
 * LabProg2019 - Progetto di Programmazione a.a. 2019-20
 * Maze.fs: maze
@@ -50,11 +49,11 @@ type Maze(W, H) =
     let rec checkLegals2 ls = 
         match ls with
         | [] -> []
-        | ((x,y), (i,j)):: t -> 
+        | (x,y):: t -> 
             if isLegal (x,y) then 
-                if maze.[x,y].isWall || maze.[i,j].isWall then checkLegals2 t
+                if maze.[x,y].isWall then checkLegals2 t
                 elif maze.[x,y].isVisited then checkLegals2 t
-                else ((x,y),(i,j))::(checkLegals2 t)
+                else (x,y)::(checkLegals2 t)
             else checkLegals2 t
 
     let getAllNeighbors (h,w) = 
@@ -65,7 +64,7 @@ type Maze(W, H) =
         checkLegals (getAllNeighbors (h,w))
 
     let getLegalNeighbors2 (h,w) =
-        List.map (fun x -> fst x ) (checkLegals2 (getAllNeighbors (h,w)))
+        checkLegals2 (List.map (fun x -> snd x ) (getAllNeighbors (h,w)))
 
     let getNextIndex (h,w) =  
         let legalNeighbors = getLegalNeighbors (h,w)
@@ -177,6 +176,7 @@ let userGame () =
     let st0 = { 
         player = player
         }
+
     // start engine
     engine.loop_on_key my_update st0
 
@@ -252,7 +252,7 @@ let main () =
     let box2 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 30, 5, 1)
     let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), 9, 4, 2)
 
-    screen.draw_text ("Testing... Press Space for starting", 0, 0, Color.Blue)
+    screen.draw_text ("Testing... Press Space for userGame, E for CPUGame", 0, 0, Color.Blue)
     box1.draw_text ("Find the Exit", 1, 3, Color.White)
     box2.draw_text (" Auto Finder!", 1, 3, Color.White)
 
