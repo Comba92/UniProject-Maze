@@ -9,6 +9,7 @@ module LabProg2019.Maze
 open Gfx
 open System
 open Engine
+//open Menu
       
 [< NoEquality; NoComparison >]
 type state = {
@@ -120,8 +121,6 @@ type Maze(W, H) =
     member this.get = maze
     member this.exit = exitCell
 
-let win() = exit(0)
-
 let userGame () =       
     let engine = new engine (W, H)
     let mazeObj = new Maze ((W-1), (H-1)) 
@@ -136,7 +135,7 @@ let userGame () =
     
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         // move player
-        let dx, dy, prevx, prevy =
+        let dx, dy, prevx, prevy=
             match key.KeyChar with 
             | 'w' -> 0., -1., 0., 1.
             | 's' -> 0., 1., 0., -1.
@@ -149,11 +148,16 @@ let userGame () =
         let px, py = (int(st.player.x))-1, (int (st.player.y))-1    // L'indicizzazione dell'oggetto maze è uguale a quella dell'engine-1
 
         // Controllo collisione coi bordi
-        if px+1 = 0 || px+1 = W || py+1 = 0 || py+1 = H then st.player.move_by (prevx, prevy)
+        if px+1 = 0 || px+1 = W || py+1 = 0 || py+1 = H then st.player.move_by (prevx, prevy)   // NON TOCCARE 
         // Controllo collisione coi muri
-        elif maze.[px, py].isWall = true then st.player.move_by (prevx, prevy)
+        elif maze.[px, py].isWall then st.player.move_by (prevx, prevy)
+        else st.player.move_by (dx, dy) // Movimento extra secondo blocco (+ VELOCITA' YUPPI)
+
         // Controllo collisione exit
-        if (int(st.player.x), int(st.player.y)) = (exitx, exity) then win()
+        if (int(st.player.x), int(st.player.y)) = (exitx, exity) then 
+            let win = engine.create_and_register_sprite (image.rectangle (10, 6, pixel.filled Color.Yellow, pixel.filled Color.Yellow), (W/4), (H/2), 4)
+            win.draw_text ("YOU WON!\nPress q\nto return", 1,1, Color.Red)
+            ()
         st, key.KeyChar = 'q'
 
 
@@ -170,7 +174,7 @@ let userGame () =
 
     // create simple backgroud and player
     let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Red), 1, 1, 2)
-    let exit = engine.create_and_register_sprite (image.rectangle (1,1, pixel.filled Color.Yellow), exitx, exity, 3)
+    let exit = engine.create_and_register_sprite (image.rectangle (1,1, pixel.filled Color.Blue), exitx, exity, 3)
 
     // initialize state
     let st0 = { 
@@ -217,6 +221,7 @@ let cpuGame () =
     // create simple backgroud and player
     let start = engine.create_and_register_sprite (path, 1, 1, 1)
     let exit = engine.create_and_register_sprite (image.rectangle (1,1, pixel.filled Color.Yellow), exitx, exity, 3)
+    screen.draw_text ("Press q to return", 0, 0, Color.Red)
 
     // initialize state
     let st0 = { 
@@ -227,34 +232,43 @@ let cpuGame () =
 
 
 let main () =
-    let mainW, mainH = 60, 20
-    let engine = new engine (mainW, mainH)
+    let engine = new engine (W, H)
     engine.show_fps <- false
+
+    let boxW = 15
+    let boxH = 6
+    let boxPosW = 3
+    let boxPosH = 5
+    let boxDistance = 9
+
+    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Black), 0, 0, 0)
+    let box1 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.filled Color.Gray, pixel.filled Color.Gray), boxPosW, boxPosH, 1)
+    let box2 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.filled Color.Gray, pixel.filled Color.Gray), boxPosW, boxPosH+boxDistance, 1)
+    let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), boxPosW-1, boxPosH-1, 2)
 
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         let dx, dy =
             match key.KeyChar with
-            //| 'w' -> 0., -20.
-            //| 's' -> 0., 20.
-            | 'a' -> -20., 0.
-            | 'd' -> 20., 0.
+            | 'w' -> 0., float(-boxDistance)
+            | 's' -> 0., float(boxDistance)
+            //| 'a' -> -1., 0.
+            //| 'd' -> 1., 0.
             | ' ' -> 1., 1.
-            | 'e' -> 2.,2.
             | _   -> 0., 0.
-        if (dx, dy) = (1.,1.) then userGame()
-        elif (dx, dy) = (2.,2.) then cpuGame()
+
+        if (dx, dy) = (1.,1.) then  
+            if (selection.x+1., selection.y+1.) = (box1.x, box1.y) then userGame()
+            elif (selection.x+1., selection.y+1.) = (box2.x, box2.y) then cpuGame()
         else 
-            st.player.move_by (dx, dy)
+            if (selection.x+1., selection.y+1.) = (box1.x, box1.y) && dy = float(-boxDistance) then ()
+            elif (selection.x+1., selection.y+1.) = (box2.x, box2.y) && dy = float(boxDistance) then ()
+            else st.player.move_by (dx, dy)
         st, key.KeyChar = 'q'
 
-    let screen = engine.create_and_register_sprite (image.rectangle (mainW, mainH, pixel.filled Color.Black), 0, 0, 0)
-    let box1 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 10, 5, 1)
-    let box2 = engine.create_and_register_sprite (image.rectangle (15, 6, pixel.filled Color.Gray, pixel.filled Color.Gray), 30, 5, 1)
-    let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), 9, 4, 2)
 
-    screen.draw_text ("Testing... Press Space for userGame, E for CPUGame", 0, 0, Color.Blue)
-    box1.draw_text ("Find the Exit", 1, 3, Color.White)
-    box2.draw_text (" Auto Finder!", 1, 3, Color.White)
+    screen.draw_text ("Move with WASD,\nChoose with SPACE\nPress q to quit", 0, 0, Color.Blue)
+    box1.draw_text ("  User Mode  ", 1, 3, Color.White)
+    box2.draw_text ("AutoFind Mode", 1, 3, Color.White)
 
     let st0 = {
         player = selection
