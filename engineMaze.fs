@@ -155,8 +155,9 @@ let userGame () =
 
         // Controllo collisione exit
         if (int(st.player.x), int(st.player.y)) = (exitx, exity) then 
-            let win = engine.create_and_register_sprite (image.rectangle (10, 6, pixel.filled Color.Yellow, pixel.filled Color.Yellow), (W/4), (H/2), 4)
-            win.draw_text ("YOU WON!\nPress q\nto return", 1,1, Color.Red)
+            let winScreen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Black, pixel.filled Color.Black), 0, 0, 4)
+            let win = engine.create_and_register_sprite (image.rectangle (W-2, H-2, pixel.filled Color.Yellow, pixel.filled Color.Yellow), 1, 1, 5)
+            win.draw_text ("YOU WON!\nPress q\nto return", (W/4),(H/2), Color.Red)
             ()
         st, key.KeyChar = 'q'
 
