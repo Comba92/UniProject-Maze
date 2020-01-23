@@ -107,8 +107,6 @@ type Maze(W, H) =
             if (List.head stack) = exitCell then ()
             else 
                 let x,y = List.head stack
-                
-                
                 let neighbors = (getLegalNeighbors2 (List.head stack))
                 if neighbors = [] then 
                     maze.[x,y].isPath <- false
