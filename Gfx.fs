@@ -43,7 +43,7 @@ type CharInfo with
     static member wall (fg : Color, ?bg : Color) = CharInfo.create (Config.wall_pixel_char, fg, ?bg = bg)
     static member path (fg : Color, ?bg : Color) = CharInfo.create (Config.path_pixel_char, fg, ?bg = bg)
     static member wall = CharInfo.create (Config.wall_pixel_char, Color.Green)
-    static member wall = CharInfo.create (Config.path_pixel_char, Color.Green)
+    static member path = CharInfo.create (Config.path_pixel_char, Color.Blue)
     static member empty = CharInfo.create (Config.empty_pixel_char, Color.White) 
     member this.is_empty = this.Char.UnicodeChar = Config.empty_pixel_char
 
