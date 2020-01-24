@@ -9,8 +9,7 @@ module LabProg2019.Maze
 open Gfx
 open System
 open Engine
-//open Menu
-      
+
 [< NoEquality; NoComparison >]
 type state = {
     player : sprite
@@ -28,50 +27,66 @@ type Cell() =
 type Maze(W, H) =
     let maze = Array2D.init W H (fun _ _ -> new Cell ())
     let startingCell = (0,0)
-    let exitCell = (W-2, H-2)  // -2 perché W e H sono pari, exitCell deve essere pari...
+    let exitCell = (W-2, H-2)  // -2 perché W e H sono sempre pari, exitCell deve essere pari
 
+    // Controlla gli indici siano dentro l'array
     let isLegal (w,h) =   
         if h >= H || h < 0 || w >= W || w < 0 then false
         else true
 
+    // Ritorna un elemento random da una lista
     let getRandom ls =      
         let index = rnd_int 0 ((List.length ls)-1)
         List.item index ls
 
-    let rec checkLegals ls = 
-        match ls with 
-        | [] -> []
-        | ((x,y), midPosition)::tail -> 
-            if isLegal (x,y) then 
-                    if maze.[x,y].isWall = false then checkLegals tail 
-                    else ((x,y), midPosition)::(checkLegals tail)
-            else checkLegals tail
-
-    let rec checkLegals2 ls = 
-        match ls with
-        | [] -> []
-        | (x,y):: t -> 
-            if isLegal (x,y) then 
-                if maze.[x,y].isWall then checkLegals2 t
-                elif maze.[x,y].isVisited then checkLegals2 t
-                else (x,y)::(checkLegals2 t)
-            else checkLegals2 t
-
+    // Ritorna una lista di coppie (cella+2 e cella+1) delle celle vicine di una data cella
     let getAllNeighbors (h,w) = 
         [((h-2,w), (h-1,w)); ((h+2,w), (h+1,w));
         ((h,w-2), (h,w-1)); ((h,w+2), (h,w+1))]
 
+    // Usato per la generazione. Data una coordinata, ritorna una lista di coppie di coordinate (cella+2, cella+1) 
+    // di celle che 1. sono dentro l'array e 2. sono delle mura
     let getLegalNeighbors (h,w) =
-        checkLegals (getAllNeighbors (h,w))
+        let rec checkLegals ls = 
+            match ls with 
+            | [] -> []
+            | ((x,y), midPosition)::tail -> 
+                if isLegal (x,y) then 
+                        if maze.[x,y].isWall = false then checkLegals tail 
+                        else ((x,y), midPosition)::(checkLegals tail)
+                else checkLegals tail
 
+        // Prendo tutte le celle vicine, quindi uso checkLegals per ritornare solo quelle legali
+        checkLegals (getAllNeighbors (h,w)) 
+
+    // Usato per il pathFind. Data una coordinata, ritorna una lista di coppie di coordinate (cella+2, cella+1) 
+    // di celle che 1. sono dentro l'array e 2. non sono delle mura e 3. non sono ancora state controllate 
     let getLegalNeighbors2 (h,w) =
+        let rec checkLegals2 ls = 
+            match ls with
+            | [] -> []
+            | (x,y):: t -> 
+                if isLegal (x,y) then 
+                    if maze.[x,y].isWall then checkLegals2 t
+                    elif maze.[x,y].isVisited then checkLegals2 t
+                    else (x,y)::(checkLegals2 t)
+                else checkLegals2 t
+
+        // getAllNeighbors ritorna anche celle distanti di due, quindi filtro la lista
+        // delel vicine con List.map
         checkLegals2 (List.map (fun x -> snd x ) (getAllNeighbors (h,w)))
 
+    // Usato per la generazione. Data una coordinata ritorna una sua vicina distante di due (LEGALE) random
+    // In caso non ce ne sia nessuna, ritorna il caso speciale ((-1,-1,),(-1,-1))
     let getNextIndex (h,w) =  
         let legalNeighbors = getLegalNeighbors (h,w)
         if legalNeighbors = [] then ((-1,-1), (-1,-1))    
         else getRandom legalNeighbors                         
 
+    // Usato per la generazione. Data una coordinata, ottiene una vicina legale random e setta 
+    // isWall a falso (sia alla cella distante di uno che quella distante di due). Alla fine ritorna 
+    // la coordinata distante di due Se non ci sono vicine legali, ritorno il caso speciale (-1,-1). 
+    // Se la coordinata è la exitCell, faccio in modo che vi sia un solo modo di poter arrivarvi. 
     let update (w,h) =  
         maze.[w,h].isWall <- false
         if (w,h) = exitCell then (-1,-1) // funziona solo con exitCell pari....
@@ -83,6 +98,12 @@ type Maze(W, H) =
             maze.[midW, midH].isWall <- false  
             (nextW, nextH)
 
+    (* Genera il labirinto con il metodo recursive backtracking. Una lista tiene conto dei movimenti:
+    iniziamo da (0,0) e ci muoviamo di due in una direzione legale random. Settiamo la nuova cella
+    a isWall <- false (riga 111) e la aggiungiamo alla lista dei movimenti. Richiamo poi ricorsivamente la funzione
+    aggiungendo la nuova cella alla liste movimenti. Altrimenti se non ci sono celle legali vicine,
+    (quindi update ritorna (-1,-1)) allora torno indietro togliendo dalla lista movimenti l'ultima cella
+    aggiunga. Quando la lista movimenti è svuotata del tutto, significa che abbiamo finito la generazione.*)
     member this.make_path () = 
         let rec generate stack = 
             if stack = [] then ()
@@ -94,6 +115,15 @@ type Maze(W, H) =
 
         generate [startingCell]
 
+    (* Trova il percorso per l'uscita del labirinto. Similmente all'algoritmo di generazione, teniamo una
+    lista di movimenti. Iniziamo da (0,0), e salviamo in una lista tutte le possibili direzioni in cui possiamo 
+    muoverci (riga 134) Iteriamo su questa lista e per ogni possibile direzione, settiamo la cella isVisited <- true
+    e isPath <- true (indicherà che la cella fa parte del percorso risolutivo) chiamiamo ricorsivamente la 
+    funzione, aggiungendo in testa alla lista movimenti l'ultima cella controllata. Se capita che la lista delle possibili
+    direzioni sia vuota, significa che abbiamo raggiunto un vicolo cieco, quindi abbiamo seguito il percorso sbagliato:
+    settiamo isPath <- false dato che non è un percorso corretto, torniamo indietro togliendo dalla lista movimenti le
+    celle finché non torniamo in una cella con altre direzioni ancora da controllare. Quando arriviamo a exitCell allora 
+    abbiamo finito. *)
     member this.find_path () = 
         let rec iterate ls p stack =
             match ls with 
@@ -119,6 +149,10 @@ type Maze(W, H) =
     member this.get = maze
     member this.exit = exitCell
 
+
+// Ogni sprite è grande 1x1 per facilitare il controllo delle collisioni. Tieni conto che l'algoritmo genera labirinto NON GENERA
+// I BORDI, ma solo la struttura interna. Aggiungiamo quindi i bordi graficamente dall'engine e abbiamo bisogno di un ulteriore controllo
+// affinché gli indici non escano dall'array
 let userGame () =       
     let engine = new engine (W, H)
     let mazeObj = new Maze ((W-1), (H-1)) 
@@ -183,6 +217,7 @@ let userGame () =
     // start engine
     engine.loop_on_key my_update st0
 
+
 let cpuGame () = 
     let engine = new engine (W, H)
     let mazeObj = new Maze ((W-1), (H-1)) 
@@ -209,6 +244,7 @@ let cpuGame () =
                 if maze.[i,j].isWall then engine.create_and_register_sprite (wall, i+1, j+1, 1)
     |]
 
+    // Stampa del percorso risolutivo
     let mazePath = [|
         for i in 0..(W-2) do 
             for j in 0..(H-2) do
@@ -230,6 +266,7 @@ let cpuGame () =
     engine.loop_on_key my_update st0
 
 
+// Menu principale
 let main () =
     let engine = new engine (W, H)
     engine.show_fps <- false
