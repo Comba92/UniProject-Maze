@@ -194,7 +194,7 @@ let userGame () =
         st, key.KeyChar = 'q'
 
 
-    let wall = image.rectangle (1,1, pixel.filled Color.Gray)
+    let wall = image.rectangle (1,1, pixel.wall)
 
     // Stampa delle mura
     let mazeWalls = [|
@@ -203,7 +203,7 @@ let userGame () =
                 if maze.[i,j].isWall = true then engine.create_and_register_sprite (wall, i+1, j+1, 1)
     |]
 
-    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
+    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.wall), 0, 0, 0)
 
     // create simple backgroud and player
     let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Red), 1, 1, 2)
@@ -234,8 +234,8 @@ let cpuGame () =
         st, key.KeyChar = 'q'
 
 
-    let wall = image.rectangle (1,1, pixel.filled Color.Gray)
-    let path = image.rectangle (1,1, pixel.filled Color.Red)
+    let wall = image.rectangle (1,1, pixel.wall)
+    let path = image.rectangle (1,1, pixel.path)
 
     // Stampa delle mura
     let mazeWalls = [|
@@ -251,7 +251,7 @@ let cpuGame () =
                 if maze.[i,j].isPath then engine.create_and_register_sprite (path, i+1, j+1, 1)
     |]
 
-    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Gray), 0, 0, 0)
+    let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.wall), 0, 0, 0)
 
     // create simple backgroud and player
     let start = engine.create_and_register_sprite (path, 1, 1, 1)
@@ -278,9 +278,9 @@ let main () =
     let boxDistance = 9
 
     let screen = engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Black), 0, 0, 0)
-    let box1 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.filled Color.Gray, pixel.filled Color.Gray), boxPosW, boxPosH, 1)
-    let box2 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.filled Color.Gray, pixel.filled Color.Gray), boxPosW, boxPosH+boxDistance, 1)
-    let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.filled Color.Red), boxPosW-1, boxPosH-1, 2)
+    let box1 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.wall, pixel.wall), boxPosW, boxPosH, 1)
+    let box2 = engine.create_and_register_sprite (image.rectangle (boxW, boxH, pixel.wall, pixel.wall), boxPosW, boxPosH+boxDistance, 1)
+    let selection = engine.create_and_register_sprite (image.rectangle (17, 8, pixel.path), boxPosW-1, boxPosH-1, 2)
 
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
         let dx, dy =
