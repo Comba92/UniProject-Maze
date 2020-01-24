@@ -13,6 +13,7 @@ open Prelude
 
 let filled_pixel_char = char (254) //'\u2588'    // ascii '\219' for character '█'
 let wall_pixel_char = char (219) //'\u2588'    // ascii '\219' for character '█'
+let path_pixel_char = char (219)
 let empty_pixel_char = ' '
 
 let default_flip_queue = 2  // double buffering
