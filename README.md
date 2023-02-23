@@ -1,2 +1,2 @@
-# asciiMaze_fsharp
+# Maze
 Algorithms for generating a random nxm maze and finding its fastest exit route. WIP
