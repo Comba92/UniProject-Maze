@@ -49,8 +49,6 @@ type CharInfo with
 
 
 type pixel = CharInfo
-
-
        
 // write-only raster abstract class: provides basic drawing primitives and no item-getter property 
 //

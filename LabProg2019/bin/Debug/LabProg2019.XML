@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>LabProg2019</name></assembly>
+<members>
+<member name="T:LabProg2019.Prelude.Color">
+<summary>
+ Type alias for ConsoleColor.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.synced`1.apply_and_set(Microsoft.FSharp.Core.FSharpFunc{`0,`0})">
+<summary>
+ Apply the given function f to the synchronized value and modify it atomically.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.synced`1.apply``1(Microsoft.FSharp.Core.FSharpFunc{`0,``0})">
+<summary>
+ Apply the given function f to the synchronized value atomically.
+</summary>
+</member>
+<member name="T:LabProg2019.Prelude.synced`1">
+<summary>
+ Access a shared value in a thread-safe synchronized way.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.ConsoleColor.nibble_of_color.Static(System.ConsoleColor)">
+<summary>
+ Convert a ConsoleColor to a 4-bit nibble in the system console format.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.ConsoleColor.color_of_nibble.Static(System.Int16)">
+<summary>
+ Convert a 4-bit nibble in the system console format to a ConsoleColor.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.ConsoleColor.of_rgb.Static(System.Byte,System.Byte,System.Byte)">
+<summary>
+ Calculates the nearest ConsoleColor to the given RGB triple.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.ConsoleColor.shade_by_brightness(System.ConsoleColor,System.Int32)">
+<summary>
+ Calculate a pair of Colors (foreground, backgroud) given a reference color and an integer representing the brightness in the range [0, 3].
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.ConsoleColor.get_darken(System.ConsoleColor)">
+<summary>
+ Computes the dark version of a given Color.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.clamp(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+<summary>
+ Calculates the intersection between the two given rectangluar regions.
+</summary>
+</member>
+<member name="M:LabProg2019.Prelude.deg2rad(System.Double)">
+<summary>
+ Convert an angle a in degrees into radians.
+</summary>
+</member>
+<member name="T:LabProg2019.External.Coord">
+<summary>
+ This struct represents points as pairs of 16-bit integers. Used by low-level console writing primitives for committing screen regions.
+</summary>
+</member>
+<member name="T:LabProg2019.External.SmallRect">
+<summary>
+ This struct represents screen areas as rectangles. Used by low-level console writing primitives for committing screen regions.
+</summary>
+</member>
+<member name="F:LabProg2019.External.CharInfo.Attributes">
+<summary>
+ Extra attributes for additional informations: colors are encoded here.
+</summary>
+</member>
+<member name="F:LabProg2019.External.CharInfo.Char">
+<summary>
+ The character field of type CharUnion.
+</summary>
+</member>
+<member name="P:LabProg2019.External.CharInfo.fg(System.ConsoleColor)">
+<summary>
+ Get or set the foreground color.
+</summary>
+</member>
+<member name="P:LabProg2019.External.CharInfo.bg(System.ConsoleColor)">
+<summary>
+ Get or set the background color.
+</summary>
+</member>
+<member name="P:LabProg2019.External.CharInfo.fg">
+<summary>
+ Get or set the foreground color.
+</summary>
+</member>
+<member name="P:LabProg2019.External.CharInfo.bg">
+<summary>
+ Get or set the background color.
+</summary>
+</member>
+<member name="T:LabProg2019.External.CharInfo">
+<summary>
+ This struct represents a character cell with its character and colors. It directly stubs the CharInfo struct defined in Windows low-level API (kernel32.dll).
+</summary>
+</member>
+<member name="T:LabProg2019.External.CharUnion">
+<summary>
+ This struct is actually a C-like union type representing either a Unicode 16-bit charachter or an ASCII 8-bit character on the same memory address.
+</summary>
+</member>
+<member name="M:LabProg2019.External.WriteConsoleOutput(Microsoft.Win32.SafeHandles.SafeFileHandle,LabProg2019.External.CharInfo[],LabProg2019.External.Coord,LabProg2019.External.Coord,LabProg2019.External.SmallRect@)">
+<summary>
+ This is the stub for the main console writing primitive. It commits a rectangular region of CharInfo on the system console using a low-latency high-performance algorithm.
+</summary>
+</member>
+<member name="T:LabProg2019.External">
+<summary>
+ External types directly stubbing structs defined in Windows low-level API (kernel32.dll).
+</summary>
+</member>
+<member name="T:LabProg2019.Globals.remote_logger">
+<summary>
+ Type specialization used by the log server process.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.logger.warn``1(Microsoft.FSharp.Core.PrintfFormat{``0,Microsoft.FSharp.Core.Unit,System.String,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Output the given printf-like format string with warn severity.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.logger.msg``1(Microsoft.FSharp.Core.PrintfFormat{``0,Microsoft.FSharp.Core.Unit,System.String,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Output the given printf-like format string with the default informational severity.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.logger.error``1(Microsoft.FSharp.Core.PrintfFormat{``0,Microsoft.FSharp.Core.Unit,System.String,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Output the given printf-like format string with error severity.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.logger.debug``1(Microsoft.FSharp.Core.PrintfFormat{``0,Microsoft.FSharp.Core.Unit,System.String,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Output the given printf-like format string with debug severity.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.logger.atomic_print(System.ConsoleColor,System.String)">
+<summary>
+ Internal low-level atomic print primitive. Do not call this directly.
+</summary>
+</member>
+<member name="T:LabProg2019.Globals.logger">
+<summary>
+ Logger type.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.stopwatch``1(System.String,Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Run the given function and returns its result paired with the elapsed time.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.stopwatch_quiet``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Runs the given function and returns its result paired with the elapsed time.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.rnd_color">
+<summary>
+ Generate a random ConsoleColor among the available system palette.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.rnd_bool">
+<summary>
+ Generate a random boolean.
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.rnd_float(System.Double,System.Double)">
+<summary>
+ Generate a random float within the range [a, b].
+</summary>
+</member>
+<member name="M:LabProg2019.Globals.rnd_int(System.Int32,System.Int32)">
+<summary>
+ Generate a random integer within the range [a, b].
+</summary>
+</member>
+<member name="P:LabProg2019.Globals.Rnd">
+<summary>
+ Global PRNG instance.
+</summary>
+</member>
+<member name="P:LabProg2019.Globals.Log">
+<summary>
+ Global logger instance.    
+</summary>
+</member>
+<member name="M:LabProg2019.Gfx.raster.unsafe_blit(System.Int32,System.Int32,System.Int32,System.Int32,LabProg2019.Gfx.wronly_raster,System.Int32,System.Int32)">
+<summary>
+ Blit a rectangular region of pixels from this object as source to the destination raster.
+ Expression src.unsafe_blit (x0, y0, w, h, dst, x1, y1) blits from source raster src to destination raster dst,
+ copying the rectangular region with top-left corner at (x0, y0) and bottom-right corner at (x0 + w - 1, y0 + h -1) to destination coordinates (x1, y1).
+</summary>
+</member>
+<member name="M:LabProg2019.Gfx.raster.get(System.Int32,System.Int32)">
+<summary>
+ Reads a pixel value at the given coordinates.
+</summary>
+</member>
+<member name="M:LabProg2019.Gfx.clamp(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+<summary>
+ Calculates the intersection between the two given rectangles.
+</summary>
+</member>
+<member name="F:LabProg2019.Engine.engine.show_fps@">
+<summary>
+ Flag for enabling/disabling fps and frame time information overlay (default = true in Debug and false in Release).
+</summary>
+</member>
+<member name="F:LabProg2019.Engine.engine.show_sprites@">
+<summary>
+ Flag for enabling/disabling automatic rendering of sprites at each frame (default = true).
+</summary>
+</member>
+<member name="F:LabProg2019.Engine.engine.auto_clear@">
+<summary>
+ Flag for enabling/disabling automatic clearing of each frame (default = true).
+</summary>
+</member>
+<member name="F:LabProg2019.Engine.engine.screen_height@">
+<summary>
+ Get the height of the output console.
+</summary>
+</member>
+<member name="F:LabProg2019.Engine.engine.screen_width@">
+<summary>
+ Get the width of the output console.
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.show_sprites(System.Boolean)">
+<summary>
+ Flag for enabling/disabling automatic rendering of sprites at each frame (default = true).
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.show_fps(System.Boolean)">
+<summary>
+ Flag for enabling/disabling fps and frame time information overlay (default = true in Debug and false in Release).
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.auto_clear(System.Boolean)">
+<summary>
+ Flag for enabling/disabling automatic clearing of each frame (default = true).
+</summary>
+</member>
+<member name="M:LabProg2019.Engine.engine.register_sprite(LabProg2019.Gfx.sprite)">
+<summary>
+ Register the given sprite so that the engine knows it and renders it each frame according to its z value.
+</summary>
+</member>
+<member name="M:LabProg2019.Engine.engine.loop_on_key``1(Microsoft.FSharp.Core.FSharpFunc{System.ConsoleKeyInfo,Microsoft.FSharp.Core.FSharpFunc{LabProg2019.Gfx.wronly_raster,Microsoft.FSharp.Core.FSharpFunc{LabProg2019.Engine.info,Microsoft.FSharp.Core.FSharpFunc{``0,System.Tuple{``0,System.Boolean}}}}},``0)">
+<summary>
+ Start the engine loop given a custom update function and an initial state.
+ The update function is called every time a key is pressed on the system console; the key is passed as argument to the update function, together with the output wronly_raster and the state.
+ Each call to the update function produces a boolean and a new state: the latter is passed to the subsequent call; the former tells the engine whether to quit or not the big loop.
+</summary>
+</member>
+<member name="M:LabProg2019.Engine.engine.loop``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.FSharpOption{System.ConsoleKeyInfo},Microsoft.FSharp.Core.FSharpFunc{LabProg2019.Gfx.wronly_raster,Microsoft.FSharp.Core.FSharpFunc{LabProg2019.Engine.info,Microsoft.FSharp.Core.FSharpFunc{``0,System.Tuple{``0,System.Boolean}}}}},``0)">
+<summary>
+ Start the engine loop given a custom update function and an initial state.
+ The update function is called every I milliseconds, where I = 1000 / fps_cap, on a different thread, allowing advanced concurrent rendering strategies.
+ A key may either have or not have been pressed, therefore a value of type &apos;ConsoleKeyInfo option&apos; is passed to the update function, together with the output wronly_raster and the state.
+ Each call to the update function produces a boolean and a new state: the latter is passed to the subsequent call; the former tells the engine whether to quit or not the big loop.
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.show_sprites">
+<summary>
+ Flag for enabling/disabling automatic rendering of sprites at each frame (default = true).
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.show_fps">
+<summary>
+ Flag for enabling/disabling fps and frame time information overlay (default = true in Debug and false in Release).
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.screen_width">
+<summary>
+ Get the width of the output console.
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.screen_height">
+<summary>
+ Get the height of the output console.
+</summary>
+</member>
+<member name="P:LabProg2019.Engine.engine.auto_clear">
+<summary>
+ Flag for enabling/disabling automatic clearing of each frame (default = true).
+</summary>
+</member>
+<member name="M:LabProg2019.Engine.engine.create_and_register_sprite(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+<summary>
+ Shortcut for creating and registering a sprite in one operation with an empty image.
+</summary>
+</member>
+<member name="M:LabProg2019.Engine.engine.create_and_register_sprite(LabProg2019.Gfx.image,System.Int32,System.Int32,System.Int32)">
+<summary>
+ Shortcut for creating and registering a sprite in one operation with a given image.
+</summary>
+</member>
+<member name="T:LabProg2019.Engine.engine">
+<summary>
+ This class provides the 2D ASCII engine.
+ Constructors picks width and height of the output console and optionally the frame-rate cap and the flip queue length.
+ A flip queue length of 0 implies no buffering and direct rendering on the system console.
+ The system console windows is automatically created when this class gets instantiated.
+ Calling one of the loop methods make the engine start its render loop.
+ Sprites can be registered for making the engine draw them each frame automatically in ascending z-order.
+ The order of operations for each frame are: clear buffer; render sprites; call user update function; commit frame; switch buffer.
+</summary>
+</member>
+</members>
+</doc>
